@@ -1,12 +1,6 @@
 
 # ignore dir
-#build/
-build/*.txt
-build/Makefile
-build/*.cmake
-build/CMakeFiles
-build/sdk_core
-build/sample
+build/*
 
 #whitelist
 !build/notes.txt
