@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.15)
 project(livox_sdk)
 
 # C++ config.
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Set position independent code.
@@ -24,7 +24,6 @@ find_package(catkin REQUIRED)
 catkin_package(
 	LIBRARIES ${PROJECT_NAME} 
 	INCLUDE_DIRS sdk_core/include
-	DEPENDS Threads
 )
 
 # Sources.
@@ -98,12 +97,9 @@ set(LIVOX_PRIVATE_INCLUDES sdk_core/src)
 # Add the Livox SDK library.
 add_library(${PROJECT_NAME} ${LIVOX_SOURCES})
 target_link_libraries(${PROJECT_NAME} Threads::Threads)
-target_sources(${PROJECT_NAME} PRIVATE ${LIVOX_SOURCES})
 target_include_directories(${PROJECT_NAME}
     PUBLIC ${LIVOX_PUBLIC_INCLUDES} 
     PRIVATE ${LIVOX_PRIVATE_INCLUDES})
-set_target_properties(${SDK_LIBRARY} 
-    PROPERTIES PUBLIC_HEADER "sdk_core/include/livox_def.h;sdk_core/include/livox_sdk.h")
 
 # Include headers.
 include_directories(sdk_core/include)
@@ -115,8 +111,8 @@ install(TARGETS
     LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
     RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 
-# ## Install headers
-# install(FILES 
-# 	sdk_core/include/livox_def.h;
-# 	sdk_core/include/livox_sdk.h
-# 	DESTINATION ${CATKIN_GLOBAL_INCLUDE_DESTINATION}/${PROJECT_NAME})
+## Install headers
+install(FILES 
+	sdk_core/include/livox_def.h
+	sdk_core/include/livox_sdk.h
+	DESTINATION ${CATKIN_GLOBAL_INCLUDE_DESTINATION})
