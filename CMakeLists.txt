@@ -22,7 +22,7 @@ find_package(catkin REQUIRED)
 
 # Define the catkin package for this project.
 catkin_package(
-	LIBRARIES ${PROJECT_NAME} 
+	LIBRARIES ${PROJECT_NAME}
 	INCLUDE_DIRS sdk_core/include
 )
 
@@ -36,7 +36,7 @@ set(LIVOX_SOURCES
     sdk_core/src/base/thread_base.cpp
     sdk_core/src/base/io_thread.h
     sdk_core/src/base/io_thread.cpp
-    sdk_core/src/base/network/network_util.h    
+    sdk_core/src/base/network/network_util.h
     sdk_core/src/base/logging.h
     sdk_core/src/base/logging.cpp
     sdk_core/src/base/noncopyable.h
@@ -75,7 +75,7 @@ set(LIVOX_SOURCES
     sdk_core/src/base/multiple_io/multiple_io_select.cpp
     sdk_core/src/base/multiple_io/multiple_io_kqueue.h
     sdk_core/src/base/multiple_io/multiple_io_kqueue.cpp
-    sdk_core/src/base/wake_up/wake_up_pipe.h    
+    sdk_core/src/base/wake_up/wake_up_pipe.h
 )
 if(WIN32)
 	list(APPEND LIVOX_SOURCES sdk_core/src/base/network/win/network_util.cpp)
@@ -86,19 +86,17 @@ else(WIN32)
 endif (WIN32)
 
 # Includes.
-set(LIVOX_PUBLIC_INCLUDES    
+set(LIVOX_PRIVATE_INCLUDES
     sdk_core/include
     sdk_core/include/third_party/FastCRC
     sdk_core/include/third_party/spdlog
     sdk_core/include/third_party/cmdline
-)
-set(LIVOX_PRIVATE_INCLUDES sdk_core/src)
+    sdk_core/src)
 
 # Add the Livox SDK library.
 add_library(${PROJECT_NAME} ${LIVOX_SOURCES})
 target_link_libraries(${PROJECT_NAME} Threads::Threads)
 target_include_directories(${PROJECT_NAME}
-    PUBLIC ${LIVOX_PUBLIC_INCLUDES} 
     PRIVATE ${LIVOX_PRIVATE_INCLUDES})
 
 # Include headers.
@@ -112,7 +110,7 @@ install(TARGETS
     RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 
 ## Install headers
-install(FILES 
+install(FILES
 	sdk_core/include/livox_def.h
 	sdk_core/include/livox_sdk.h
 	DESTINATION ${CATKIN_GLOBAL_INCLUDE_DESTINATION})
