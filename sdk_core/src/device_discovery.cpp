@@ -105,7 +105,13 @@ void DeviceDiscovery::OnData(socket_t sock, void *) {
       util::CloseSock(sock);
       connecting_devices_.erase(sock);
 
-      if ((nullptr != packet.data) && (NULL != *packet.data))
+      if (packet.data == NULL)
+      {
+        LOG_INFO("Packet data is null.");
+        continue;
+      }
+
+      if (*(uint8_t *)packet.data == 0)
       {
         LOG_INFO("New Device");
         LOG_INFO("Handle: {}", static_cast<uint16_t>(info.handle));
