@@ -43,8 +43,10 @@ namespace livox {
 
 uint16_t DeviceDiscovery::port_count = 0;
 
-bool DeviceDiscovery::Init() {
-  if (comm_port_ == NULL) {
+bool DeviceDiscovery::Init()
+{
+  if (nullptr == comm_port_)
+  {
     comm_port_.reset(new CommPort());
   }
   return true;
@@ -78,24 +80,33 @@ void DeviceDiscovery::OnData(socket_t sock, void *) {
   CommPacket packet;
   memset(&packet, 0, sizeof(packet));
 
-  while ((kParseSuccess == comm_port_->ParseCommStream(&packet))) {
-    if (packet.cmd_set == kCommandSetGeneral && packet.cmd_code == kCommandIDGeneralBroadcast) {
+  while ((kParseSuccess == comm_port_->ParseCommStream(&packet)))
+  {
+    // Decoded packet as General Broadcast.
+    if (packet.cmd_set == kCommandSetGeneral && packet.cmd_code == kCommandIDGeneralBroadcast)
+    {
       OnBroadcast(packet, &addr);
-    } else if (packet.cmd_set == kCommandSetGeneral && packet.cmd_code == kCommandIDGeneralHandshake) {
-      if (connecting_devices_.find(sock) == connecting_devices_.end()) {
+    }
+    // Decoded packet as General Handshake.
+    else if (packet.cmd_set == kCommandSetGeneral && packet.cmd_code == kCommandIDGeneralHandshake)
+    {
+      // Check if the connecting device is found.
+      if (connecting_devices_.find(sock) == connecting_devices_.end())
+      {
+        LOG_INFO("Connecting Device not found.")
         continue;
       }
-      DeviceInfo info = std::get<1>(connecting_devices_[sock]);
-      if (!loop_.expired()) {
+
+      const DeviceInfo info = std::get<1>(connecting_devices_[sock]);
+      if (!loop_.expired())
+      {
         loop_.lock()->RemoveDelegate(sock, this);
       }
       util::CloseSock(sock);
       connecting_devices_.erase(sock);
 
-      if (packet.data == NULL) {
-        continue;
-      }
-      if (*(uint8_t *)packet.data == 0) {
+      if ((nullptr != packet.data) && (nullptr != *(uint8_t *)packet.data))
+      {
         LOG_INFO("New Device");
         LOG_INFO("Handle: {}", static_cast<uint16_t>(info.handle));
         LOG_INFO("Broadcast Code: {}", info.broadcast_code);
@@ -105,6 +116,11 @@ void DeviceDiscovery::OnData(socket_t sock, void *) {
         LOG_INFO("Data Port: {}", info.data_port);
         DeviceFound(info);
       }
+    }
+    else
+    {
+      LOG_WARN("Stuck in loop");
+      LOG_INFO("Packet cmd code: {}", packet.cmd_code);
     }
   }
 }
@@ -139,8 +155,10 @@ void DeviceDiscovery::Uninit() {
   }
 }
 
-void DeviceDiscovery::OnBroadcast(const CommPacket &packet,  struct sockaddr *addr) {
-  if (packet.data == NULL) {
+void DeviceDiscovery::OnBroadcast(const CommPacket &packet,  struct sockaddr *addr)
+{
+  if (nullptr == packet.data)
+  {
     return;
   }
 
@@ -153,9 +171,9 @@ void DeviceDiscovery::OnBroadcast(const CommPacket &packet,  struct sockaddr *ad
   memset(&ip, 0, sizeof(ip));
   inet_ntop(AF_INET, &((struct sockaddr_in*)addr)->sin_addr, ip, INET_ADDRSTRLEN);
   strncpy(device_info.ip, ip, sizeof(device_info.ip));
-  
+
   device_manager().BroadcastDevices(&device_info);
- 
+
   DeviceInfo lidar_info;
   bool found = device_manager().FindDevice(broadcast_code, lidar_info);
 
