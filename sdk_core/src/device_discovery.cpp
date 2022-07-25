@@ -93,7 +93,7 @@ void DeviceDiscovery::OnData(socket_t sock, void *) {
       // Check if the connecting device is found.
       if (connecting_devices_.find(sock) == connecting_devices_.end())
       {
-        LOG_INFO("Connecting Device not found.")
+        LOG_INFO("Connecting Device not found.");
         continue;
       }
 
@@ -105,7 +105,7 @@ void DeviceDiscovery::OnData(socket_t sock, void *) {
       util::CloseSock(sock);
       connecting_devices_.erase(sock);
 
-      if ((nullptr != packet.data) && (nullptr != *(uint8_t *)packet.data))
+      if ((nullptr != packet.data) && (nullptr != *packet.data))
       {
         LOG_INFO("New Device");
         LOG_INFO("Handle: {}", static_cast<uint16_t>(info.handle));
