@@ -61,6 +61,7 @@ bool CommandChannel::Bind(std::weak_ptr<IOLoop> loop) {
     return false;
   }
   loop_ = loop;
+  LOG_INFO("Creating command socket on [CommandChannel::Bind]");
   sock_ = util::CreateSocket(port_);
   if (sock_ == -1) {
     return false;
@@ -138,7 +139,7 @@ void CommandChannel::OnTimer(TimePoint now) {
   }
 
   for (list<Command>::iterator ite = timeout_commands.begin(); ite != timeout_commands.end(); ++ite) {
-    LOG_WARN("Command Timeout: Set {}, Id {}, Seq {}", 
+    LOG_WARN("Command Timeout: Set {}, Id {}, Seq {}",
         (uint16_t)ite->packet.cmd_set, ite->packet.cmd_code, ite->packet.seq_num);
     if (callback_) {
       ite->packet.packet_type = kCommandTypeAck;
@@ -158,6 +159,7 @@ void CommandChannel::Uninit() {
     if (!loop_.expired()) {
       loop_.lock()->RemoveDelegate(sock_, this);
     }
+    LOG_INFO("Closing socket on [CommandChannel::Uninit]");
     util::CloseSock(sock_);
     sock_ = -1;
   }

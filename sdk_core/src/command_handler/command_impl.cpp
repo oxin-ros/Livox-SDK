@@ -23,6 +23,7 @@
 //
 
 #include <livox_sdk.h>
+#include <iostream>
 
 #include "command_handler.h"
 #include "command_impl.h"
@@ -47,7 +48,7 @@ void SetBroadcastCallback(DeviceBroadcastCallback cb) {
 }
 
 livox_status AddHubToConnect(const char *broadcast_code, uint8_t *handle) {
-  bool result = device_manager().AddListeningDevice(broadcast_code, kDeviceModeHub, *handle);
+  const bool result = device_manager().AddListeningDevice(broadcast_code, kDeviceModeHub, *handle);
   if (result) {
     return kStatusSuccess;
   } else {
@@ -56,7 +57,7 @@ livox_status AddHubToConnect(const char *broadcast_code, uint8_t *handle) {
 }
 
 livox_status AddLidarToConnect(const char *broadcast_code, uint8_t *handle) {
-  bool result = device_manager().AddListeningDevice(broadcast_code, kDeviceModeLidar, *handle);
+  const bool result = device_manager().AddListeningDevice(broadcast_code, kDeviceModeLidar, *handle);
   if (result) {
     return kStatusSuccess;
   } else {
@@ -335,7 +336,7 @@ livox_status SetStaticDynamicIP(uint8_t handle,
 
 livox_status SetDynamicIp(uint8_t handle, CommonCommandCallback cb, void *client_data) {
   SetDeviceIpExtendModeRequest req;
-  req.ip_mode = kLidarDynamicIpMode;  
+  req.ip_mode = kLidarDynamicIpMode;
   return SetDeviceIp(handle, &req, cb, client_data);
 }
 
@@ -561,7 +562,7 @@ livox_status LidarGetExtrinsicParameter(uint8_t handle, LidarGetExtrinsicParamet
 }
 
 livox_status LidarRainFogSuppress(uint8_t handle, bool enable, CommonCommandCallback cb, void *client_data) {
-  if (device_manager().device_mode() != kDeviceModeLidar 
+  if (device_manager().device_mode() != kDeviceModeLidar
       || !device_manager().IsLidarMid40(handle)) {
     return kStatusNotSupported;
   }
@@ -795,9 +796,9 @@ livox_status HubQuerySlotPowerStatus(HubQuerySlotPowerStatusCallback cb, void *c
   return result;
 }
 
-livox_status HubFanControl(HubFanControlRequest *req, 
-                           uint16_t length, 
-                           HubFanControlCallback cb, 
+livox_status HubFanControl(HubFanControlRequest *req,
+                           uint16_t length,
+                           HubFanControlCallback cb,
                            void *client_data) {
   if (device_manager().device_mode() != kDeviceModeHub) {
     return kStatusNotSupported;
@@ -811,9 +812,9 @@ livox_status HubFanControl(HubFanControlRequest *req,
   return result;
 }
 
-livox_status HubGetFanState(HubGetFanStateRequest *req, 
-                            uint16_t length, 
-                            HubGetFanStateCallback cb, 
+livox_status HubGetFanState(HubGetFanStateRequest *req,
+                            uint16_t length,
+                            HubGetFanStateCallback cb,
                             void *client_data) {
   if (device_manager().device_mode() != kDeviceModeHub) {
     return kStatusNotSupported;
@@ -827,9 +828,9 @@ livox_status HubGetFanState(HubGetFanStateRequest *req,
   return result;
 }
 
-livox_status HubSetPointCloudReturnMode(HubSetPointCloudReturnModeRequest *req, 
-                                        uint16_t length, 
-                                        HubSetPointCloudReturnModeCallback cb, 
+livox_status HubSetPointCloudReturnMode(HubSetPointCloudReturnModeRequest *req,
+                                        uint16_t length,
+                                        HubSetPointCloudReturnModeCallback cb,
                                         void *client_data) {
   if (device_manager().device_mode() != kDeviceModeHub) {
     return kStatusNotSupported;
@@ -843,9 +844,9 @@ livox_status HubSetPointCloudReturnMode(HubSetPointCloudReturnModeRequest *req,
   return result;
 }
 
-livox_status HubGetPointCloudReturnMode(HubGetPointCloudReturnModeRequest *req, 
-                                        uint16_t length, 
-                                        HubGetPointCloudReturnModeCallback cb, 
+livox_status HubGetPointCloudReturnMode(HubGetPointCloudReturnModeRequest *req,
+                                        uint16_t length,
+                                        HubGetPointCloudReturnModeCallback cb,
                                         void *client_data) {
   if (device_manager().device_mode() != kDeviceModeHub) {
     return kStatusNotSupported;
@@ -859,9 +860,9 @@ livox_status HubGetPointCloudReturnMode(HubGetPointCloudReturnModeRequest *req,
   return result;
 }
 
-livox_status HubSetImuPushFrequency(HubSetImuPushFrequencyRequest *req, 
-                                    uint16_t length, 
-                                    HubSetImuPushFrequencyCallback cb, 
+livox_status HubSetImuPushFrequency(HubSetImuPushFrequencyRequest *req,
+                                    uint16_t length,
+                                    HubSetImuPushFrequencyCallback cb,
                                     void *client_data) {
   if (device_manager().device_mode() != kDeviceModeHub) {
     return kStatusNotSupported;
@@ -875,9 +876,9 @@ livox_status HubSetImuPushFrequency(HubSetImuPushFrequencyRequest *req,
   return result;
 }
 
-livox_status HubGetImuPushFrequency(HubGetImuPushFrequencyRequest *req, 
-                                    uint16_t length, 
-                                    HubGetImuPushFrequencyCallback cb, 
+livox_status HubGetImuPushFrequency(HubGetImuPushFrequencyRequest *req,
+                                    uint16_t length,
+                                    HubGetImuPushFrequencyCallback cb,
                                     void *client_data) {
   if (device_manager().device_mode() != kDeviceModeHub) {
     return kStatusNotSupported;
@@ -922,7 +923,7 @@ livox_status LidarSetRmcSyncTime(uint8_t handle,
       return kStatusNotSupported;
     }
   }
- 
+
   LidarSetUtcSyncTimeRequest utc_time_req;
   if (!ParseRmcTime(rmc, rmc_length, &utc_time_req)) {
     return kStatusFailure;

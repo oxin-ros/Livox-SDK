@@ -24,6 +24,7 @@
 
 #include "lidar_data_handler.h"
 #include <mutex>
+#include <base/logging.h>
 #include "base/network/network_util.h"
 #ifdef WIN32
 #include <winsock2.h>
@@ -56,6 +57,7 @@ void LidarDataHandlerImpl::Uninit() {
     }
 
     if (item.sock > 0) {
+      LOG_INFO("Closing socket on [LidarDataHandlerImpl::Uninit]");
       util::CloseSock(item.sock);
     }
   }
@@ -64,6 +66,7 @@ void LidarDataHandlerImpl::Uninit() {
 }
 
 bool LidarDataHandlerImpl::AddDevice(const DeviceInfo &info) {
+  LOG_INFO("Creating socket on [LidarDataHandlerImpl::AddDevice]");
   socket_t sock = util::CreateSocket(info.data_port);
 
   std::shared_ptr<IOThread> thread = std::make_shared<IOThread>();
@@ -98,6 +101,7 @@ void LidarDataHandlerImpl::RemoveDevice(uint8_t handle) {
     item.thread->Join();
     item.thread->Uninit();
     if (item.sock > 0) {
+      LOG_INFO("Closing socket on [LidarDataHandlerImpl::RemoveDevice]");
       util::CloseSock(item.sock);
     }
   }

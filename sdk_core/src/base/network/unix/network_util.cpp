@@ -41,12 +41,14 @@ socket_t CreateSocket(uint16_t port, bool nonblock, bool reuse_port) {
 
   sock = socket(AF_INET, SOCK_DGRAM, 0);
   if (sock < 0) {
+    fprintf(stderr, "failed to open socket");
     return -1;
   }
 
   if (nonblock) {
     status = ioctl(sock, FIONBIO, (char*)&on);
     if (status != 0) {
+      fprintf(stderr, "failed to set non-block on socket");
       close(sock);
       return -1;
     }
@@ -56,13 +58,14 @@ socket_t CreateSocket(uint16_t port, bool nonblock, bool reuse_port) {
     status = setsockopt(sock, SOL_SOCKET, SO_REUSEADDR,
                         (char *) &on, sizeof (on));
     if (status != 0) {
+      fprintf(stderr, "failed to set reuse-port on socket");
       close(sock);
       return -1;
     }
   }
 
   memset(&servaddr, 0, sizeof(servaddr));
- 
+
   // Filling server information
   servaddr.sin_family    = AF_INET; // IPv4
   servaddr.sin_addr.s_addr = INADDR_ANY;
@@ -70,6 +73,7 @@ socket_t CreateSocket(uint16_t port, bool nonblock, bool reuse_port) {
 
   status = bind(sock, (const struct sockaddr *)&servaddr, sizeof(servaddr));
   if (status != 0) {
+    fprintf(stderr, "failed to bind to socket: %i", static_cast<int32_t>(sock));
     close(sock);
     return -1;
   }

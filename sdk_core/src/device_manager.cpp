@@ -218,7 +218,8 @@ void DeviceManager::GetConnectedDevices(vector<DeviceInfo> &devices) {
 
 bool DeviceManager::AddListeningDevice(const string &broadcast_code, DeviceMode mode, uint8_t &handle) {
   lock_guard<mutex> lock(mutex_);
-  if (mode == kDeviceModeHub) {
+  if (mode == kDeviceModeHub)
+  {
     handle = kHubDefaultHandle;
     devices_[kHubDefaultHandle].connected = false;
     strncpy(devices_[kHubDefaultHandle].info.broadcast_code,
@@ -228,18 +229,28 @@ bool DeviceManager::AddListeningDevice(const string &broadcast_code, DeviceMode 
     return true;
   }
 
-  for (DeviceContainer::iterator ite = devices_.begin(); ite != devices_.end(); ++ite) {
-    if (strlen(ite->info.broadcast_code) == 0) {
+  for (DeviceContainer::iterator ite = devices_.begin(); ite != devices_.end(); ++ite)
+  {
+    const bool broadcast_code_empty = (strlen(ite->info.broadcast_code) == 0);
+    if (broadcast_code_empty)
+    {
       handle = ite - devices_.begin();
       ite->connected = false;
       strncpy(ite->info.broadcast_code, broadcast_code.c_str(), sizeof(ite->info.broadcast_code)-1);
       ite->info.handle = handle;
       return true;
-    } else if (strncmp(ite->info.broadcast_code, broadcast_code.c_str(), sizeof(ite->info.broadcast_code)) == 0) {
+    }
+
+    const bool broadcast_code_found_in_device_container = (strncmp(ite->info.broadcast_code, broadcast_code.c_str(), sizeof(ite->info.broadcast_code)) == 0);
+    if (broadcast_code_found_in_device_container)
+    {
       handle = ite->info.handle;
       return true;
     }
+
+    // Continue to next device in container.
   }
+  printf("Device '%s' not found in device container.");
   return false;
 }
 
@@ -300,7 +311,7 @@ void DeviceManager::UpdateDeviceState(uint8_t handle, const HeartbeatResponse &r
       update = true;
     }
   }
- 
+
   if (devices_[handle].connected && update == true) {
     if (connected_cb_) {
       connected_cb_(&info, kEventStateChange);

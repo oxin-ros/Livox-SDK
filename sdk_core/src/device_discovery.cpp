@@ -57,6 +57,7 @@ bool DeviceDiscovery::Start(std::weak_ptr<IOLoop> loop) {
     return false;
   }
   loop_ = loop;
+  LOG_INFO("Creating socket on [DeviceDiscovery::Start]");
   sock_ = util::CreateSocket(kListenPort);
   if (sock_ < 0) {
     return false;
@@ -102,6 +103,8 @@ void DeviceDiscovery::OnData(socket_t sock, void *) {
       {
         loop_.lock()->RemoveDelegate(sock, this);
       }
+
+      LOG_INFO("Closing socket on [DeviceDiscovery::OnData]");
       util::CloseSock(sock);
       connecting_devices_.erase(sock);
 
@@ -139,6 +142,7 @@ void DeviceDiscovery::OnTimer(TimePoint now) {
       if (!loop_.expired()) {
         loop_.lock()->RemoveDelegate(ite->first, this);
       }
+      LOG_INFO("Closing socket on [DeviceDiscovery::OnTimer]");
       util::CloseSock(ite->first);
       connecting_devices_.erase(ite++);
     } else {
@@ -152,6 +156,7 @@ void DeviceDiscovery::Uninit() {
     if (!loop_.expired()) {
       loop_.lock()->RemoveDelegate(sock_, this);
     }
+    LOG_INFO("Closing socket on [DeviceDiscovery::Uninit]");
     util::CloseSock(sock_);
     sock_ = -1;
   }
@@ -168,26 +173,37 @@ void DeviceDiscovery::OnBroadcast(const CommPacket &packet,  struct sockaddr *ad
     return;
   }
 
+  // Get the broadcast code.
   BroadcastDeviceInfo device_info;
   memcpy((void*)(&device_info),(void*)(packet.data),(sizeof(BroadcastDeviceInfo)-sizeof(device_info.ip)));
-  string broadcast_code = device_info.broadcast_code;
-  LOG_INFO(" Broadcast broadcast code: {}", broadcast_code);
+  const std::string broadcast_code = device_info.broadcast_code;
+  LOG_INFO("Broadcast broadcast code: {}", broadcast_code);
 
+  // Get the device IP.
   char ip[16];
   memset(&ip, 0, sizeof(ip));
   inet_ntop(AF_INET, &((struct sockaddr_in*)addr)->sin_addr, ip, INET_ADDRSTRLEN);
   strncpy(device_info.ip, ip, sizeof(device_info.ip));
+  LOG_INFO("device info: 'type:{}' 'ip:{}' ",
+     static_cast<int>(device_info.dev_type),
+     fmt::join(device_info.ip, ""));
 
+  LOG_INFO("broadcasting device info.");
   device_manager().BroadcastDevices(&device_info);
 
+  LOG_INFO("Locating device in device manager.");
   DeviceInfo lidar_info;
-  bool found = device_manager().FindDevice(broadcast_code, lidar_info);
+  const bool device_found = device_manager().FindDevice(broadcast_code, lidar_info);
+  LOG_INFO("Device found: {}", device_found);
 
-  if (!found) {
+  if (!device_found) {
     LOG_INFO("Broadcast code : {} not add to connect", broadcast_code);
   }
 
-  if (!found || device_manager().IsDeviceConnected(lidar_info.handle)) {
+  const bool device_connected = device_manager().IsDeviceConnected(lidar_info.handle);
+  if (!device_found || device_connected)
+  {
+    LOG_INFO("Device Connected, skipping configuration.");
     return;
   }
 
@@ -203,14 +219,18 @@ void DeviceDiscovery::OnBroadcast(const CommPacket &packet,  struct sockaddr *ad
 
   strncpy(lidar_info.ip, ip, sizeof(lidar_info.ip));
 
-  socket_t cmd_sock = util::CreateSocket(lidar_info.cmd_port);
+  LOG_INFO("Creating command socket on [DeviceDiscovery::OnBroadcast]");
+  const socket_t cmd_sock = util::CreateSocket(lidar_info.cmd_port);
   if (cmd_sock < 0) {
+    LOG_INFO("FAILED TO CREATE SOCKET.");
     return;
   }
   if (!loop_.expired()) {
+    LOG_INFO("Adding Delegate.");
     loop_.lock()->AddDelegate(cmd_sock, this);
   }
   OnTimer(steady_clock::now());
+  LOG_INFO("Storing device in lookup.");
   std::get<1>(connecting_devices_[cmd_sock]) = lidar_info;
 
   bool result = false;
@@ -254,6 +274,7 @@ void DeviceDiscovery::OnBroadcast(const CommPacket &packet,  struct sockaddr *ad
     if (!loop_.expired()) {
       loop_.lock()->RemoveDelegate(cmd_sock, this);
     }
+    LOG_INFO("Closing socket on [DeviceDiscovery::OnBroadcast]");
     util::CloseSock(cmd_sock);
     connecting_devices_.erase(cmd_sock);
   }

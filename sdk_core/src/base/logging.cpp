@@ -25,8 +25,10 @@
 #include "logging.h"
 
 std::shared_ptr<spdlog::logger> logger = NULL;
-bool is_save_log_file = false;
+bool is_save_log_file = true;
 bool is_console_log_enable = true;
+
+#define SPDLOG_LEVEL spdlog::level::info
 
 void InitLogger() {
 
@@ -50,8 +52,8 @@ void InitLogger() {
 
   logger = std::make_shared<spdlog::logger>("console", begin(sinkList), end(sinkList));
   spdlog::register_logger(logger);
-  logger->set_level(spdlog::level::debug);
-  logger->flush_on(spdlog::level::debug);
+  logger->set_level(SPDLOG_LEVEL);
+  logger->flush_on(SPDLOG_LEVEL);
 }
 
 void UninitLogger() {

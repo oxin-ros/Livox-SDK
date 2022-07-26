@@ -9,8 +9,10 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # This enables support for using the livox SDK in a ROS nodelet.
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-# Default to a release build.
-set(CMAKE_BUILD_TYPE Release)
+# Set the cmake build type.
+if(NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Choose Release or Debug" FORCE)
+endif()
 
 # Include threads.
 set(CMAKE_THREAD_PREFER_PTHREAD TRUE)

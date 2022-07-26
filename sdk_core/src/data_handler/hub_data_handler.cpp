@@ -51,6 +51,7 @@ void HubDataHandlerImpl::Uninit() {
   }
 
   if (sock_ > 0) {
+    LOG_INFO("Closing socket on [HubDataHandlerImpl::Uninit]");
     util::CloseSock(sock_);
     sock_ = -1;
   }
@@ -64,6 +65,7 @@ bool HubDataHandlerImpl::AddDevice(const DeviceInfo &info) {
   is_valid_ = true;
   hub_info_ = info;
 
+  LOG_INFO("Creating command socket on [HubDataHandlerImpl::AddDevice]");
   sock_ = util::CreateSocket(info.data_port);
   if (sock_ < 0) {
     is_valid_ = false;
@@ -99,6 +101,7 @@ void HubDataHandlerImpl::RemoveDevice(uint8_t handle) {
     if (!loop.expired()) {
       loop.lock()->RemoveDelegate(sock_, this);
     }
+    LOG_INFO("Closing socket on [HubDataHandlerImpl::RemoveDevice]");
     util::CloseSock(sock_);
     sock_ = -1;
     is_valid_ = false;
