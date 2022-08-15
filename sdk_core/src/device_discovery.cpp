@@ -176,7 +176,7 @@ namespace livox
         BroadcastDeviceInfo device_info;
         memcpy((void *)(&device_info), (void *)(packet.data), (sizeof(BroadcastDeviceInfo) - sizeof(device_info.ip)));
         const std::string broadcast_code = device_info.broadcast_code;
-        LOG_INFO(" Broadcast from \{device broadcast code: {}\}", broadcast_code);
+        LOG_INFO(" Broadcast from {{ device broadcast code: {} }}", broadcast_code);
 
         // Get the IP address of the device.
         char ip[16];
@@ -196,7 +196,7 @@ namespace livox
 
         if (device_manager().IsDeviceConnected(lidar_info.handle))
         {
-            LOG_INFO("Broadcast code : {} - Device already connected.");
+            LOG_INFO("Broadcast code : {} - Device already connected.", broadcast_code);
         }
 
         if (!found || device_manager().IsDeviceConnected(lidar_info.handle))

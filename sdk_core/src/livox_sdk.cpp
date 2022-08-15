@@ -126,7 +126,7 @@ void Uninit()
 {
     if (!is_initialized)
     {
-        LOG_ERROR("Failed to uninitialize Livox SDK - Not initialized.");
+        LOG_ERROR("Failed to deinitialize Livox SDK - Not initialized.");
         return;
     }
 
