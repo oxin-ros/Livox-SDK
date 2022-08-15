@@ -216,7 +216,7 @@ namespace livox
         socket_t cmd_sock = util::CreateSocket(lidar_info.cmd_port);
         if (cmd_sock < 0)
         {
-            LOG_ERROR("Failed to create command socket.")
+            LOG_ERROR("Failed to create command socket.");
             return;
         }
         if (!loop_.expired())
